@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generador de Cotizaciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      .form-group label {
+        font-weight: 600;
+        color: #1f2937;
+      }
+      .form-group input,
+      .form-group textarea {
+        border: 1px solid #d1d5db;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+      }
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px #3b82f6;
+      }
+      .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.3s;
+      }
+      .btn-primary:hover {
+        background-color: #4338ca;
+      }
+      .btn-secondary {
+        background-color: #6b7280;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+      }
+      .btn-secondary:hover {
+        background-color: #4b5563;
+      }
+      .pdf-container {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+      }
+      .product-item input,
+      .product-item textarea {
+        min-width: 0;
+      }
+      /* Mobile-first adjustments for a better user experience */
+      @media (min-width: 640px) {
+        .product-grid {
+          grid-template-columns: 0.1fr 2fr 1fr 1fr 1fr 0.1fr;
+        }
+        .product-grid-header {
+          grid-template-columns: 2.2fr 1fr 1fr;
+        }
+      }
+      .signature-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px dashed #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        width: 100%;
+        height: 150px;
+        position: relative;
+      }
+      .signature-preview img,
+      .logo-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+      .signature-delete,
+      .logo-delete {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+      .product-carousel {
+        display: flex;
+        overflow-x: scroll;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        -webkit-overflow-scrolling: touch;
+      }
+      .product-carousel::-webkit-scrollbar {
+        height: 8px;
+      }
+      .product-carousel::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 10px;
+      }
+      .product-card {
+        flex: 0 0 auto;
+        width: 200px;
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
+          0 1px 2px -1px rgb(0 0 0 / 0.1);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 p-4">
+    <div class="container bg-white rounded-lg shadow-lg p-6 md:p-8 space-y-6">
+      <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">
+        Generador de Cotizaciones
+      </h1>
+
+      <!-- Formulario -->
+      <form id="quoteForm" class="space-y-6">
+        <!-- Sección de la empresa -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-4">
+            <div class="form-group flex flex-col">
+              <label for="companyName">Nombre de la Empresa</label>
+              <input
+                type="text"
+                id="companyName"
+                value="Solara Development"
+                class="rounded-lg"
+              />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="companyReg">Matrícula No.</label>
+              <input
+                type="text"
+                id="companyReg"
+                value="892.068"
+                class="rounded-lg"
+              />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="companyNit">NIT</label>
+              <input
+                type="text"
+                id="companyNit"
+                value="1.234.092.725-5"
+                class="rounded-lg"
+              />
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="form-group flex flex-col">
+              <label for="clientName">Nombre del Cliente</label>
+              <input
+                type="text"
+                id="clientName"
+                placeholder="Nombre del cliente"
+                class="rounded-lg"
+              />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="quoteDate">Fecha de Emisión</label>
+              <input type="date" id="quoteDate" class="rounded-lg" />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="logoUpload">Logo de la Empresa</label>
+              <input
+                type="file"
+                id="logoUpload"
+                accept="image/*"
+                class="rounded-lg p-1 border border-gray-300 w-full"
+              />
+              <div
+                id="logoPreviewContainer"
+                class="mt-2 w-32 h-16 border border-dashed border-gray-400 rounded-lg flex items-center justify-center p-1 relative"
+              >
+                <span id="logoPlaceholder" class="text-gray-500 text-sm"
+                  >Preview</span
+                >
+                <div
+                  id="logoPreview"
+                  class="logo-preview absolute inset-0 flex items-center justify-center"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carrusel de productos guardados -->
+        <div id="savedProductsSection" class="mt-8 hidden">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">
+            Productos guardados
+          </h2>
+          <div id="productCarousel" class="product-carousel">
+            <!-- Cards will be inserted here -->
+          </div>
+        </div>
+
+        <!-- Tabla de productos/servicios -->
+        <div class="mt-8">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">
+            Productos/Servicios
+          </h2>
+          <div class="overflow-x-auto">
+            <div class="min-w-full inline-block align-middle">
+              <div
+                class="grid grid-cols-3 md:grid-cols-6 gap-2 text-sm font-medium text-gray-500 py-2 border-b border-gray-300 product-grid-header"
+              >
+                <div class="hidden md:block">#</div>
+                <div>Nombre</div>
+                <div>Descripción</div>
+                <div class="hidden md:block">Cantidad</div>
+                <div class="hidden md:block">Valor Unitario</div>
+                <div class="hidden md:block">Valor Total</div>
+                <div class="hidden md:block"></div>
+              </div>
+              <div id="productContainer" class="space-y-4 py-4">
+                <!-- Productos se insertarán aquí dinámicamente -->
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            id="addProductBtn"
+            class="mt-4 px-4 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600 transition-colors"
+          >
+            Añadir Producto
+          </button>
+        </div>
+
+        <!-- Total y notas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+          <div class="space-y-4">
+            <div class="form-group flex flex-col">
+              <label for="subtotal">Subtotal</label>
+              <input
+                type="text"
+                id="subtotal"
+                class="font-bold text-gray-700 rounded-lg"
+                readonly
+              />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="total">Total</label>
+              <input
+                type="text"
+                id="total"
+                class="font-bold text-gray-700 rounded-lg"
+                readonly
+              />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="amountInWords">Importe en letras</label>
+              <input type="text" id="amountInWords" class="rounded-lg" />
+            </div>
+          </div>
+          <div class="form-group flex flex-col">
+            <label>Notas</label>
+            <div
+              id="notesEditor"
+              class="rounded-lg bg-gray-50 border border-gray-300"
+              style="height: 200px"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Sección de firma -->
+        <div class="mt-8">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">
+            Información del Firmante
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group flex flex-col">
+              <label for="signatureName">Nombre del Firmante</label>
+              <input
+                type="text"
+                id="signatureName"
+                value="Victor Manuel Guzmán Berrio"
+                placeholder="Nombre completo"
+                class="rounded-lg"
+              />
+            </div>
+            <div class="form-group flex flex-col">
+              <label for="signatureId">Cédula de Ciudadanía</label>
+              <input
+                type="text"
+                id="signatureId"
+                value="1.234.092.725"
+                placeholder="Número de cédula"
+                class="rounded-lg"
+              />
+            </div>
+          </div>
+          <div class="form-group flex flex-col mt-4">
+            <label for="signatureUpload">Firma</label>
+            <input
+              type="file"
+              id="signatureUpload"
+              accept="image/*"
+              class="rounded-lg p-1 border border-gray-300 w-full"
+            />
+            <div
+              id="signaturePreviewContainer"
+              class="mt-2 signature-container relative"
+            >
+              <span id="signaturePlaceholder" class="text-gray-500"
+                >Preview de la firma</span
+              >
+              <div
+                id="signaturePreview"
+                class="signature-preview absolute inset-0 flex items-center justify-center"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          id="generatePdfBtn"
+          class="btn-primary w-full text-center mt-8"
+        >
+          Generar PDF
+        </button>
+      </form>
+
+      <!-- PDF Output Section -->
+      <div id="pdf-output-container" class="hidden mt-8 pdf-container">
+        <div id="pdf-content" class="p-8">
+          <!-- PDF content will be dynamically generated here -->
+          <div class="flex justify-between items-start mb-8">
+            <div id="pdf-logo-container" class="w-1/3"></div>
+            <div class="text-right">
+              <div class="text-xs text-gray-500">
+                Matrícula No.: <span id="pdf-company-reg"></span>
+              </div>
+              <div class="text-xs text-gray-500">
+                NIT: <span id="pdf-company-nit"></span>
+              </div>
+              <h2 class="text-2xl font-bold mt-2">Cotización</h2>
+              <div class="text-sm text-gray-500">
+                Fecha de emisión: <span id="pdf-quote-date"></span>
+              </div>
+            </div>
+          </div>
+
+          <h1
+            class="text-3xl font-bold text-gray-800 mb-2"
+            id="pdf-company-name"
+          ></h1>
+          <h3
+            class="text-lg font-semibold text-gray-600 mb-8"
+            id="pdf-client-name"
+          ></h3>
+
+          <div class="mt-8">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="font-bold text-gray-600 border-b border-gray-300">
+                  <th class="py-2 text-left">#</th>
+                  <th class="py-2 text-left">Descripción</th>
+                  <th class="py-2 text-right">Cantidad</th>
+                  <th class="py-2 text-right">Valor Unitario</th>
+                  <th class="py-2 text-right">Valor Total</th>
+                </tr>
+              </thead>
+              <tbody id="pdf-product-list">
+                <!-- Products will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex justify-end mt-8">
+            <div class="w-1/2 text-right">
+              <div class="text-lg font-bold">
+                Subtotal: <span id="pdf-subtotal"></span>
+              </div>
+              <div class="text-lg font-bold">
+                Total: <span id="pdf-total"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <p class="italic text-gray-600" id="pdf-amount-words"></p>
+          </div>
+
+          <div class="mt-8">
+            <div
+              id="pdf-notes"
+              class="text-sm text-gray-700 leading-relaxed"
+            ></div>
+          </div>
+
+          <div class="flex justify-between items-end mt-16">
+            <div>
+              <div id="pdf-signature-container" class="w-40 h-20"></div>
+              <div
+                class="mt-2 text-gray-800 font-medium text-sm"
+                id="pdf-signature-name"
+              ></div>
+              <div class="text-xs text-gray-500" id="pdf-signature-id"></div>
+            </div>
+            <div class="text-right text-sm text-gray-600 space-y-1">
+              <div>Teléfono: +57 320 5809857</div>
+              <div>Correo: contact@solaradev.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.jsPDF = window.jspdf.jsPDF;
+
+      const companyInfo = {
+        companyName: "Solara Development",
+        companyReg: "892.068",
+        companyNit: "1.234.092.725-5",
+        phone: "+57 320 5809857",
+        email: "contact@solaradev.com",
+      };
+
+      const formElements = {
+        quoteForm: document.getElementById("quoteForm"),
+        companyName: document.getElementById("companyName"),
+        companyReg: document.getElementById("companyReg"),
+        companyNit: document.getElementById("companyNit"),
+        quoteDate: document.getElementById("quoteDate"),
+        clientName: document.getElementById("clientName"),
+        logoUpload: document.getElementById("logoUpload"),
+        logoPreviewContainer: document.getElementById("logoPreviewContainer"),
+        logoPlaceholder: document.getElementById("logoPlaceholder"),
+        logoPreview: document.getElementById("logoPreview"),
+        productContainer: document.getElementById("productContainer"),
+        addProductBtn: document.getElementById("addProductBtn"),
+        subtotal: document.getElementById("subtotal"),
+        total: document.getElementById("total"),
+        amountInWords: document.getElementById("amountInWords"),
+        notesEditor: document.getElementById("notesEditor"),
+        signatureName: document.getElementById("signatureName"),
+        signatureId: document.getElementById("signatureId"),
+        signatureUpload: document.getElementById("signatureUpload"),
+        signaturePreviewContainer: document.getElementById(
+          "signaturePreviewContainer"
+        ),
+        signaturePlaceholder: document.getElementById("signaturePlaceholder"),
+        signaturePreview: document.getElementById("signaturePreview"),
+        generatePdfBtn: document.getElementById("generatePdfBtn"),
+        savedProductsSection: document.getElementById("savedProductsSection"),
+        productCarousel: document.getElementById("productCarousel"),
+      };
+
+      const pdfElements = {
+        pdfOutputContainer: document.getElementById("pdf-output-container"),
+        pdfContent: document.getElementById("pdf-content"),
+        pdfLogoContainer: document.getElementById("pdf-logo-container"),
+        pdfCompanyName: document.getElementById("pdf-company-name"),
+        pdfCompanyReg: document.getElementById("pdf-company-reg"),
+        pdfCompanyNit: document.getElementById("pdf-company-nit"),
+        pdfQuoteDate: document.getElementById("pdf-quote-date"),
+        pdfClientName: document.getElementById("pdf-client-name"),
+        pdfProductList: document.getElementById("pdf-product-list"),
+        pdfSubtotal: document.getElementById("pdf-subtotal"),
+        pdfTotal: document.getElementById("pdf-total"),
+        pdfAmountWords: document.getElementById("pdf-amount-words"),
+        pdfNotes: document.getElementById("pdf-notes"),
+        pdfSignatureContainer: document.getElementById(
+          "pdf-signature-container"
+        ),
+        pdfSignatureName: document.getElementById("pdf-signature-name"),
+        pdfSignatureId: document.getElementById("pdf-signature-id"),
+      };
+
+      let products = [];
+      let savedProducts = [];
+      let quill;
+
+      // --- Funciones del DOM y la Lógica ---
+
+      function init() {
+        setInitialData();
+        loadCachedImages();
+        loadCachedProducts(); // Carga de productos al iniciar
+        renderSavedProducts();
+        quill = new Quill("#notesEditor", {
+          theme: "snow",
+          placeholder: "Añade notas aquí...",
+        });
+        renderProducts();
+        calculateTotals();
+      }
+
+      function setInitialData() {
+        formElements.companyName.value = companyInfo.companyName;
+        formElements.companyReg.value = companyInfo.companyReg;
+        formElements.companyNit.value = companyInfo.companyNit;
+        formElements.quoteDate.value = new Date().toISOString().slice(0, 10);
+        formElements.amountInWords.value = "";
+      }
+
+      function loadCachedProducts() {
+        const cachedProducts = localStorage.getItem("cachedProducts");
+        if (cachedProducts) {
+          try {
+            savedProducts = JSON.parse(cachedProducts);
+          } catch (e) {
+            console.error("Error al parsear productos desde localStorage:", e);
+            savedProducts = [];
+          }
+        }
+      }
+
+      function renderProducts() {
+        formElements.productContainer.innerHTML = "";
+        if (products.length === 0) {
+          formElements.productContainer.innerHTML =
+            '<p class="text-center text-gray-500 italic">No hay productos. Añade uno para empezar.</p>';
+        }
+        products.forEach((product, index) => {
+          const productElement = createProductElement(product, index);
+          formElements.productContainer.appendChild(productElement);
+        });
+      }
+
+      function renderSavedProducts() {
+        formElements.productCarousel.innerHTML = "";
+        if (savedProducts.length > 0) {
+          formElements.savedProductsSection.classList.remove("hidden");
+          savedProducts.forEach((product) => {
+            const card = document.createElement("div");
+            card.className = "product-card space-y-2";
+            card.innerHTML = `
+                        <h3 class="font-bold text-gray-800 text-base">${
+                          product.name
+                        }</h3>
+                        <p class="text-sm text-gray-600">${
+                          product.description
+                        }</p>
+                        <p class="text-sm font-medium text-gray-800">Valor: ${formatCurrency(
+                          product.unitPrice
+                        )}</p>
+                        <button type="button" data-id="${
+                          product.id
+                        }" class="add-saved-product-btn w-full px-2 py-1 bg-indigo-500 text-white text-sm rounded hover:bg-indigo-600 transition-colors">Añadir</button>
+                    `;
+            formElements.productCarousel.appendChild(card);
+          });
+        } else {
+          formElements.savedProductsSection.classList.add("hidden");
+        }
+      }
+
+      function createProductElement(product, index) {
+        const productDiv = document.createElement("div");
+        productDiv.className =
+          "product-item grid grid-cols-1 md:grid-cols-6 gap-2 items-center";
+        productDiv.dataset.id = product.id;
+
+        const totalValue = product.quantity * product.unitPrice;
+
+        productDiv.innerHTML = `
+                <div class="hidden md:block text-gray-500">${index + 1}</div>
+                <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                    <label class="block md:hidden text-gray-500 text-sm">Nombre</label>
+                    <input type="text" value="${
+                      product.name
+                    }" placeholder="Nombre" data-field="name" class="w-full">
+                </div>
+                <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                    <label class="block md:hidden text-gray-500 text-sm">Descripción</label>
+                    <textarea data-field="description" rows="1" placeholder="Descripción" class="w-full">${
+                      product.description
+                    }</textarea>
+                </div>
+                <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                    <label class="block md:hidden text-gray-500 text-sm">Cantidad</label>
+                    <input type="number" value="${
+                      product.quantity
+                    }" placeholder="Cantidad" data-field="quantity" class="w-full text-right">
+                </div>
+                <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                    <label class="block md:hidden text-gray-500 text-sm">Valor Unitario</label>
+                    <input type="number" value="${
+                      product.unitPrice
+                    }" placeholder="Valor Unitario" data-field="unitPrice" class="w-full text-right">
+                </div>
+                <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                    <label class="block md:hidden text-gray-500 text-sm">Valor Total</label>
+                    <input type="text" value="${formatCurrency(
+                      totalValue
+                    )}" class="w-full text-right bg-gray-100" readonly>
+                </div>
+                <div class="flex items-center justify-center">
+                    <button type="button" class="text-red-500 text-2xl hover:text-red-700 font-bold leading-none delete-product-btn">&times;</button>
+                </div>
+            `;
+        return productDiv;
+      }
+
+      function addProduct() {
+        const newId =
+          products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+        products.push({
+          id: newId,
+          name: "",
+          description: "",
+          quantity: 1,
+          unitPrice: 0,
+        });
+        renderProducts();
+        calculateTotals();
+      }
+
+      function addProductFromSaved(savedProduct) {
+        const newId =
+          products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+        products.push({
+          id: newId,
+          name: savedProduct.name,
+          description: savedProduct.description,
+          quantity: savedProduct.quantity,
+          unitPrice: savedProduct.unitPrice,
+        });
+        renderProducts();
+        calculateTotals();
+      }
+
+      function updateProduct(id, field, value) {
+        const product = products.find((p) => p.id == id);
+        if (product) {
+          if (field === "quantity" || field === "unitPrice") {
+            product[field] = parseFloat(value) || 0;
+          } else {
+            product[field] = value;
+          }
+          const productElement = document.querySelector(
+            `.product-item[data-id='${id}']`
+          );
+          if (productElement) {
+            const totalInput = productElement.querySelector("input[readonly]");
+            if (totalInput) {
+              totalInput.value = formatCurrency(
+                product.quantity * product.unitPrice
+              );
+            }
+          }
+          calculateTotals();
+        }
+      }
+
+      function deleteProduct(id) {
+        products = products.filter((p) => p.id != id);
+        renderProducts();
+        calculateTotals();
+      }
+
+      function calculateTotals() {
+        let subtotal = 0;
+        products.forEach((p) => {
+          subtotal += p.quantity * p.unitPrice;
+        });
+        formElements.subtotal.value = formatCurrency(subtotal);
+        formElements.total.value = formatCurrency(subtotal);
+      }
+
+      function formatCurrency(value) {
+        const formatter = new Intl.NumberFormat("es-CO", {
+          style: "currency",
+          currency: "COP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
+        return formatter.format(value);
+      }
+
+      function handleImageUpload(
+        inputElement,
+        previewContainer,
+        placeholderElement,
+        localStorageKey,
+        minHeight
+      ) {
+        const file = inputElement.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target.result;
+            localStorage.setItem(localStorageKey, base64);
+            displayImage(
+              base64,
+              previewContainer,
+              placeholderElement,
+              localStorageKey,
+              minHeight
+            );
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function displayImage(
+        base64,
+        previewContainer,
+        placeholderElement,
+        localStorageKey,
+        minHeight
+      ) {
+        if (placeholderElement) placeholderElement.classList.add("hidden");
+        previewContainer.innerHTML = "";
+
+        const img = document.createElement("img");
+        img.src = base64;
+        img.alt = localStorageKey.split("Image")[0];
+        img.style.maxHeight = "100%";
+        img.style.maxWidth = "100%";
+        img.style.objectFit = "contain";
+        previewContainer.appendChild(img);
+
+        const deleteBtn = document.createElement("div");
+        deleteBtn.className = `${localStorageKey.split("Image")[0]}-delete`;
+        deleteBtn.innerHTML = "&times;";
+        deleteBtn.onclick = () => {
+          localStorage.removeItem(localStorageKey);
+          previewContainer.innerHTML = "";
+          if (placeholderElement) placeholderElement.classList.remove("hidden");
+        };
+        previewContainer.appendChild(deleteBtn);
+      }
+
+      function loadCachedImages() {
+        const logoBase64 = localStorage.getItem("logoImage");
+        const signatureBase64 = localStorage.getItem("signatureImage");
+
+        if (logoBase64) {
+          displayImage(
+            logoBase64,
+            formElements.logoPreview,
+            formElements.logoPlaceholder,
+            "logoImage",
+            "64px"
+          );
+        }
+
+        if (signatureBase64) {
+          displayImage(
+            signatureBase64,
+            formElements.signaturePreview,
+            formElements.signaturePlaceholder,
+            "signatureImage",
+            "150px"
+          );
+        }
+      }
+
+      // --- Event Listeners ---
+
+      formElements.addProductBtn.addEventListener("click", () => {
+        addProduct();
+      });
+
+      formElements.productContainer.addEventListener("input", (e) => {
+        const target = e.target;
+        const parent = target.closest(".product-item");
+        if (!parent) return;
+        const id = parent.dataset.id;
+        const field = target.dataset.field;
+        const value = target.value;
+        updateProduct(id, field, value);
+      });
+
+      formElements.productContainer.addEventListener("click", (e) => {
+        if (e.target.classList.contains("delete-product-btn")) {
+          const parent = e.target.closest(".product-item");
+          const id = parent.dataset.id;
+          deleteProduct(id);
+        }
+      });
+
+      formElements.productCarousel.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target.classList.contains("add-saved-product-btn")) {
+          const savedProductId = target.dataset.id;
+          const productToAdd = savedProducts.find(
+            (p) => p.id == savedProductId
+          );
+          if (productToAdd) {
+            addProductFromSaved(productToAdd);
+          }
+        }
+      });
+
+      formElements.logoUpload.addEventListener("change", (e) => {
+        handleImageUpload(
+          e.target,
+          formElements.logoPreview,
+          formElements.logoPlaceholder,
+          "logoImage",
+          "64px"
+        );
+      });
+
+      formElements.signatureUpload.addEventListener("change", (e) => {
+        handleImageUpload(
+          e.target,
+          formElements.signaturePreview,
+          formElements.signaturePlaceholder,
+          "signatureImage",
+          "150px"
+        );
+      });
+
+      formElements.quoteForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Save products to localStorage before generating PDF
+        localStorage.setItem("cachedProducts", JSON.stringify(products));
+
+        // Generate PDF using AutoTable
+        await generatePDFWithAutoTable();
+      });
+
+      function addHeader(
+        doc,
+        pageWidth,
+        leftMargin,
+        rightMargin,
+        companyName,
+        companyReg,
+        companyNit,
+        quoteDate,
+        logoBase64,
+        contentWidth
+      ) {
+        const headerY = 40;
+
+        // Add company logo if available
+        if (logoBase64) {
+          const maxLogoWidth = contentWidth * 0.6;
+          const maxLogoHeight = 80; // Increased from 60 to 80 (added 20px)
+          addImageWithProportions(
+            doc,
+            logoBase64,
+            leftMargin,
+            headerY,
+            maxLogoWidth,
+            maxLogoHeight
+          );
+        }
+
+        // Company info (top right)
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Matrícula No.: ${companyReg}`,
+          pageWidth - rightMargin,
+          headerY + 20,
+          { align: "right" }
+        );
+        doc.text(`NIT: ${companyNit}`, pageWidth - rightMargin, headerY + 35, {
+          align: "right",
+        });
+
+        // Title
+        doc.setFontSize(24);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Cotización", pageWidth - rightMargin, headerY + 60, {
+          align: "right",
+        });
+
+        // Date
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          `Fecha de emisión: ${quoteDate}`,
+          pageWidth - rightMargin,
+          headerY + 80,
+          { align: "right" }
+        );
+      }
+
+      function addFooter(
+        doc,
+        pageWidth,
+        pageHeight,
+        leftMargin,
+        rightMargin,
+        signatureName,
+        signatureId,
+        signatureBase64,
+        contentWidth
+      ) {
+        const footerY = pageHeight - 80;
+
+        // Add signature image if available
+        if (signatureBase64) {
+          const maxSignatureWidth = contentWidth * 0.6;
+          const maxSignatureHeight = 50;
+          addImageWithProportions(
+            doc,
+            signatureBase64,
+            leftMargin,
+            footerY - 60,
+            maxSignatureWidth,
+            maxSignatureHeight
+          );
+        }
+
+        // Signature text
+        doc.setFont(undefined, "normal");
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(signatureName, leftMargin, footerY);
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`C.C. ${signatureId}`, leftMargin, footerY + 15);
+
+        // Contact info (bottom right)
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(
+          "Teléfono: +57 320 5809857",
+          pageWidth - rightMargin,
+          footerY,
+          { align: "right" }
+        );
+        doc.text(
+          "Correo: contact@solaradev.com",
+          pageWidth - rightMargin,
+          footerY + 15,
+          { align: "right" }
+        );
+      }
+
+      function addImageWithProportions(doc, base64, x, y, maxWidth, maxHeight) {
+        // Create a temporary image to get dimensions
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+
+        try {
+          doc.addImage(base64, "JPEG", x, y);
+          return height; // Return actual height used
+        } catch (e) {
+          console.log("Error adding image:", e);
+          return maxHeight;
+        }
+      }
+
+      async function generatePDFWithAutoTable() {
+        try {
+          console.log("Starting PDF generation...");
+          const doc = new jsPDF("p", "pt", "letter");
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+
+          // Standardized margins for consistent content width
+          const leftMargin = 40;
+          const rightMargin = 40;
+          const contentWidth = pageWidth - leftMargin - rightMargin;
+
+          // Get form data
+          const companyName = formElements.companyName.value;
+          const companyReg = formElements.companyReg.value;
+          const companyNit = formElements.companyNit.value;
+          const clientName = formElements.clientName.value;
+          const quoteDate = formElements.quoteDate.value;
+          const amountInWords = formElements.amountInWords.value;
+          const subtotal = formElements.subtotal.value;
+          const total = formElements.total.value;
+          const signatureName = formElements.signatureName.value;
+          const signatureId = formElements.signatureId.value;
+          const logoBase64 = localStorage.getItem("logoImage");
+          const signatureBase64 = localStorage.getItem("signatureImage");
+
+          // Start content after header space
+          let currentY = 160;
+
+          // Company name
+          doc.setFontSize(28);
+          doc.setTextColor(0, 0, 0);
+          doc.text(companyName, leftMargin, currentY);
+          currentY += 40;
+
+          // Client name
+          doc.setFontSize(18);
+          doc.setTextColor(100, 100, 100);
+          doc.text(clientName, leftMargin, currentY);
+          currentY += 60;
+
+          // Prepare table data with phrase case formatting
+          const tableData = products.map((product, index) => [
+            (index + 1).toString(),
+            `${toPhraseCase(product.name)}\n${toPhraseCase(
+              product.description
+            )}`,
+            product.quantity.toString(),
+            formatCurrencyForPDF(product.unitPrice),
+            formatCurrencyForPDF(product.quantity * product.unitPrice),
+          ]);
+
+          // Add total row with colspan
+          tableData.push([
+            {
+              content: "TOTAL",
+              colSpan: 4,
+              styles: { fontStyle: "bold", halign: "right" },
+            },
+            { content: total, styles: { fontStyle: "bold", halign: "right" } },
+          ]);
+
+          // Calculate table column widths proportionally to content width
+          const tableWidth = contentWidth;
+          const columnWidths = {
+            0: tableWidth * 0.08, // # column - 8%
+            1: tableWidth * 0.4, // Description - 40%
+            2: tableWidth * 0.12, // Quantity - 12%
+            3: tableWidth * 0.2, // Unit Price - 20%
+            4: tableWidth * 0.2, // Total - 20%
+          };
+
+          // Generate table using AutoTable with black borders and transparent background
+          doc.autoTable({
+            startY: currentY,
+            head: [
+              ["#", "Descripción", "Cantidad", "Valor Unitario", "Valor Total"],
+            ],
+            body: tableData,
+            theme: "plain",
+            headStyles: {
+              fillColor: false, // Transparent background
+              textColor: [0, 0, 0], // Black text
+              fontSize: 12,
+              fontStyle: "bold",
+              halign: "left",
+              valign: "middle",
+              lineColor: [0, 0, 0], // Black borders
+              lineWidth: 0.5,
+            },
+            bodyStyles: {
+              fillColor: false, // Transparent background
+              textColor: [0, 0, 0], // Black text
+              fontSize: 10,
+              cellPadding: 8,
+              halign: "left",
+              valign: "middle",
+              lineColor: [0, 0, 0], // Black borders
+              lineWidth: 0.5,
+            },
+            columnStyles: {
+              0: { halign: "center", cellWidth: columnWidths[0] },
+              1: { halign: "left", cellWidth: columnWidths[1] },
+              2: { halign: "center", cellWidth: columnWidths[2] },
+              3: { halign: "right", cellWidth: columnWidths[3] },
+              4: {
+                halign: "right",
+                cellWidth: columnWidths[4],
+                fontStyle: "bold",
+              },
+            },
+            tableLineColor: [0, 0, 0], // Black table borders
+            tableLineWidth: 0.5,
+            margin: { left: leftMargin, right: rightMargin },
+            didParseCell: function (data) {
+              // Make product names bold (column index 1, which is the description column)
+              if (data.column.index === 1 && data.section === "body") {
+                const cellText = data.cell.text[0];
+                if (cellText && cellText.includes("\n")) {
+                  // Split the text into name and description
+                  const lines = cellText.split("\n");
+                  const productName = lines[0];
+                  const productDescription = lines.slice(1).join("\n");
+
+                  // Store the original text for custom rendering
+                  data.cell.productName = productName;
+                  data.cell.productDescription = productDescription;
+                }
+              }
+            },
+            didDrawCell: function (data) {
+              // Custom rendering for product name/description cells
+              if (
+                data.column.index === 1 &&
+                data.section === "body" &&
+                data.cell.productName
+              ) {
+                // Clear the default text
+                const cell = data.cell;
+                const x = cell.x + cell.padding("left");
+                const y = cell.y + cell.padding("top");
+
+                // Draw product name in bold
+                doc.setFont(undefined, "bold");
+                doc.setFontSize(10);
+                doc.text(cell.productName, x, y + 10);
+
+                // Draw description in normal font
+                doc.setFont(undefined, "normal");
+                doc.setFontSize(10);
+                if (cell.productDescription) {
+                  doc.text(cell.productDescription, x, y + 25);
+                }
+
+                // Prevent default text rendering
+                return false;
+              }
+            },
+            didDrawPage: function (data) {
+              try {
+                // Header on every page
+                addHeader(
+                  doc,
+                  pageWidth,
+                  leftMargin,
+                  rightMargin,
+                  companyName,
+                  companyReg,
+                  companyNit,
+                  quoteDate,
+                  logoBase64,
+                  contentWidth
+                );
+
+                // Footer on every page
+                addFooter(
+                  doc,
+                  pageWidth,
+                  pageHeight,
+                  leftMargin,
+                  rightMargin,
+                  signatureName,
+                  signatureId,
+                  signatureBase64,
+                  contentWidth
+                );
+              } catch (error) {
+                console.error("Error in didDrawPage:", error);
+              }
+            },
+          });
+
+          currentY = doc.lastAutoTable.finalY + 30;
+
+          // Amount in words - within content width
+          if (amountInWords) {
+            doc.setFont(undefined, "italic");
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            const splitAmount = doc.splitTextToSize(
+              amountInWords,
+              contentWidth
+            );
+            doc.text(splitAmount, leftMargin, currentY);
+            currentY += splitAmount.length * 15 + 25;
+          }
+
+          // Notes from Quill editor - within content width
+          const notesText = quill.getText().trim();
+          if (notesText) {
+            // Add "Notas" prefix in bold
+            doc.setFont(undefined, "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text("Notas:", leftMargin, currentY);
+            currentY += 20;
+
+            // Add the actual notes content
+            doc.setFont(undefined, "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(60, 60, 60);
+            const splitNotes = doc.splitTextToSize(notesText, contentWidth);
+            doc.text(splitNotes, leftMargin, currentY);
+            currentY += splitNotes.length * 15 + 20;
+          }
+
+          // Show PDF preview container
+          pdfElements.pdfOutputContainer.classList.remove("hidden");
+
+          // Generate a preview by rendering the first page to the preview container
+          setTimeout(() => {
+            pdfElements.pdfOutputContainer.classList.add("hidden");
+          }, 2000);
+
+          // Save the PDF
+          console.log("Saving PDF...");
+          doc.save("Cotizacion.pdf");
+          console.log("PDF generation completed successfully!");
+        } catch (error) {
+          console.error("Error generating PDF:", error);
+          // Hide preview container on error
+          pdfElements.pdfOutputContainer.classList.add("hidden");
+        }
+      }
+
+      function formatCurrencyForPDF(value) {
+        return new Intl.NumberFormat("es-CO", {
+          style: "currency",
+          currency: "COP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(value);
+      }
+
+      function toPhraseCase(text) {
+        if (!text) return "";
+        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+      }
+
+      // Initialize application
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
