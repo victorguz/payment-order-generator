@@ -516,11 +516,13 @@
         setInitialData();
         loadCachedImages();
         loadCachedProducts(); // Carga de productos al iniciar
+        loadCachedClientName(); // Load cached client name
         renderSavedProducts();
         quill = new Quill("#notesEditor", {
           theme: "snow",
           placeholder: "Añade notas aquí...",
         });
+        loadCachedNotes(); // Load cached notes after Quill is initialized
         renderProducts();
         calculateTotals();
       }
@@ -542,6 +544,27 @@
             console.error("Error al parsear productos desde localStorage:", e);
             savedProducts = [];
           }
+        }
+      }
+
+      function loadCachedNotes() {
+        const cachedNotes = localStorage.getItem("cachedNotes");
+        if (cachedNotes) {
+          try {
+            // Set the notes content in the Quill editor after it's initialized
+            setTimeout(() => {
+              quill.root.innerHTML = cachedNotes;
+            }, 100);
+          } catch (e) {
+            console.error("Error al cargar notas desde localStorage:", e);
+          }
+        }
+      }
+
+      function loadCachedClientName() {
+        const cachedClientName = localStorage.getItem("cachedClientName");
+        if (cachedClientName) {
+          formElements.clientName.value = cachedClientName;
         }
       }
 
@@ -847,8 +870,10 @@
       formElements.quoteForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Save products to localStorage before generating PDF
+        // Save products, notes, and client name to localStorage before generating PDF
         localStorage.setItem("cachedProducts", JSON.stringify(products));
+        localStorage.setItem("cachedNotes", quill.root.innerHTML);
+        localStorage.setItem("cachedClientName", formElements.clientName.value);
 
         // Generate PDF using AutoTable
         await generatePDFWithAutoTable();
@@ -871,7 +896,7 @@
         // Add company logo if available
         if (logoBase64) {
           const maxLogoWidth = contentWidth * 0.6;
-          const maxLogoHeight = 80; // Increased from 60 to 80 (added 20px)
+          const maxLogoHeight = 80;
           addImageWithProportions(
             doc,
             logoBase64,
@@ -882,7 +907,7 @@
           );
         }
 
-        // Company info (top right)
+        // Company info (top right) - original colors
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
         doc.text(
@@ -895,14 +920,14 @@
           align: "right",
         });
 
-        // Title
+        // Title - black text
         doc.setFontSize(24);
         doc.setTextColor(0, 0, 0);
         doc.text("Cotización", pageWidth - rightMargin, headerY + 60, {
           align: "right",
         });
 
-        // Date
+        // Date - gray text
         doc.setFontSize(12);
         doc.setTextColor(100, 100, 100);
         doc.text(
@@ -911,6 +936,12 @@
           headerY + 80,
           { align: "right" }
         );
+
+        // Add colored band after header information
+        const bandY = headerY + 100;
+        const bandHeight = 8;
+        doc.setFillColor(98, 84, 243); // Purple band
+        doc.rect(0, bandY, pageWidth, bandHeight, "F");
       }
 
       function addFooter(
@@ -922,7 +953,8 @@
         signatureName,
         signatureId,
         signatureBase64,
-        contentWidth
+        contentWidth,
+        companyName
       ) {
         const footerY = pageHeight - 80;
 
@@ -949,6 +981,12 @@
         doc.setTextColor(100, 100, 100);
         doc.text(`C.C. ${signatureId}`, leftMargin, footerY + 15);
 
+        // Company name below signatory
+        doc.setFont(undefined, "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text(companyName, leftMargin, footerY + 30);
+
         // Contact info (bottom right)
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
@@ -974,10 +1012,8 @@
 
         try {
           doc.addImage(base64, "JPEG", x, y);
-          return height; // Return actual height used
         } catch (e) {
           console.log("Error adding image:", e);
-          return maxHeight;
         }
       }
 
@@ -1010,16 +1046,18 @@
           // Start content after header space
           let currentY = 160;
 
-          // Company name
-          doc.setFontSize(28);
-          doc.setTextColor(0, 0, 0);
-          doc.text(companyName, leftMargin, currentY);
-          currentY += 40;
+          // Client name with label
+          doc.setFont(undefined, "bold");
+          doc.setFontSize(12);
+          doc.setTextColor(60, 60, 60);
+          doc.text("Cliente: ", leftMargin, currentY + 15);
 
-          // Client name
-          doc.setFontSize(18);
-          doc.setTextColor(100, 100, 100);
-          doc.text(clientName, leftMargin, currentY);
+          doc.setFont(undefined, "normal");
+          doc.text(
+            clientName || "Nombre del cliente",
+            leftMargin + 50,
+            currentY + 15
+          );
           currentY += 60;
 
           // Prepare table data with phrase case formatting
@@ -1094,7 +1132,11 @@
             },
             tableLineColor: [0, 0, 0], // Black table borders
             tableLineWidth: 0.5,
-            margin: { left: leftMargin, right: rightMargin },
+            margin: {
+              left: leftMargin,
+              right: rightMargin,
+              top: 160, // Start after header band on continuation pages
+            },
             didParseCell: function (data) {
               // Make product names bold (column index 1, which is the description column)
               if (data.column.index === 1 && data.section === "body") {
@@ -1155,18 +1197,7 @@
                   contentWidth
                 );
 
-                // Footer on every page
-                addFooter(
-                  doc,
-                  pageWidth,
-                  pageHeight,
-                  leftMargin,
-                  rightMargin,
-                  signatureName,
-                  signatureId,
-                  signatureBase64,
-                  contentWidth
-                );
+                // Footer removed from here - will be added as separate AutoTable
               } catch (error) {
                 console.error("Error in didDrawPage:", error);
               }
@@ -1175,37 +1206,136 @@
 
           currentY = doc.lastAutoTable.finalY + 30;
 
-          // Amount in words - within content width
+          // Create AutoTable for notes sections only
+          const notesTableData = [];
+
+          // Add amount in words if available
           if (amountInWords) {
-            doc.setFont(undefined, "italic");
-            doc.setFontSize(12);
-            doc.setTextColor(100, 100, 100);
-            const splitAmount = doc.splitTextToSize(
-              amountInWords,
-              contentWidth
-            );
-            doc.text(splitAmount, leftMargin, currentY);
-            currentY += splitAmount.length * 15 + 25;
+            notesTableData.push([
+              {
+                content: "Importe en letras",
+                styles: { fontStyle: "bold", fontSize: 11 },
+              },
+            ]);
+            notesTableData.push([
+              {
+                content: amountInWords,
+                styles: { fontSize: 10, textColor: [60, 60, 60] },
+              },
+            ]);
+            notesTableData.push([{ content: "" }]); // Empty row for spacing
           }
 
-          // Notes from Quill editor - within content width
+          // Add notes if available
           const notesText = quill.getText().trim();
           if (notesText) {
-            // Add "Notas" prefix in bold
-            doc.setFont(undefined, "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text("Notas:", leftMargin, currentY);
-            currentY += 20;
-
-            // Add the actual notes content
-            doc.setFont(undefined, "normal");
-            doc.setFontSize(10);
-            doc.setTextColor(60, 60, 60);
-            const splitNotes = doc.splitTextToSize(notesText, contentWidth);
-            doc.text(splitNotes, leftMargin, currentY);
-            currentY += splitNotes.length * 15 + 20;
+            notesTableData.push([
+              {
+                content: "Notas:",
+                styles: { fontStyle: "bold", fontSize: 12 },
+              },
+            ]);
+            notesTableData.push([
+              {
+                content: notesText,
+                styles: { fontSize: 10, textColor: [60, 60, 60] },
+              },
+            ]);
           }
+
+          // Generate notes table with invisible borders
+          if (notesTableData.length > 0) {
+            doc.autoTable({
+              startY: currentY,
+              body: notesTableData,
+              theme: "plain",
+              bodyStyles: {
+                fillColor: false,
+                textColor: [0, 0, 0],
+                lineColor: false, // Invisible borders
+                lineWidth: 0,
+                cellPadding: { top: 5, bottom: 5, left: 0, right: 0 },
+              },
+              columnStyles: {
+                0: { cellWidth: contentWidth },
+              },
+              margin: {
+                left: leftMargin,
+                right: rightMargin,
+                top: 160, // Start after header band on continuation pages
+              },
+              didDrawPage: function (data) {
+                try {
+                  // Only header on every page
+                  addHeader(
+                    doc,
+                    pageWidth,
+                    leftMargin,
+                    rightMargin,
+                    companyName,
+                    companyReg,
+                    companyNit,
+                    quoteDate,
+                    logoBase64,
+                    contentWidth
+                  );
+                } catch (error) {
+                  console.error("Error in notes table didDrawPage:", error);
+                }
+              },
+            });
+
+            currentY = doc.lastAutoTable.finalY + 30;
+          }
+
+          // Add footer after notes in traditional format
+          const signatureY = Math.max(currentY + 40, pageHeight - 120);
+
+          // Add signature image if available
+          // signatureBase64 already declared above
+          if (signatureBase64) {
+            const maxSignatureWidth = contentWidth * 0.6;
+            const maxSignatureHeight = 50;
+            addImageWithProportions(
+              doc,
+              signatureBase64,
+              leftMargin,
+              signatureY - 60,
+              maxSignatureWidth,
+              maxSignatureHeight
+            );
+          }
+
+          // Signature text
+          doc.setFont(undefined, "normal");
+          doc.setFontSize(12);
+          doc.setTextColor(0, 0, 0);
+          doc.text(signatureName, leftMargin, signatureY);
+          doc.setFontSize(10);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`C.C. ${signatureId}`, leftMargin, signatureY + 15);
+
+          // Company name below signatory
+          doc.setFont(undefined, "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(0, 0, 0);
+          doc.text(companyName, leftMargin, signatureY + 30);
+
+          // Contact info (bottom right)
+          doc.setFontSize(10);
+          doc.setTextColor(100, 100, 100);
+          doc.text(
+            "Teléfono: +57 320 5809857",
+            pageWidth - rightMargin,
+            signatureY,
+            { align: "right" }
+          );
+          doc.text(
+            "Correo: contact@solaradev.com",
+            pageWidth - rightMargin,
+            signatureY + 15,
+            { align: "right" }
+          );
 
           // Show PDF preview container
           pdfElements.pdfOutputContainer.classList.remove("hidden");
