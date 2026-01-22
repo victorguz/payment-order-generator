@@ -147,8 +147,28 @@
   <body class="bg-gray-100 p-4">
     <div class="container bg-white rounded-lg shadow-lg p-6 md:p-8 space-y-6">
       <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">
-        Generador de Cotizaciones
+        <span id="documentTitle">Generador de Cotizaciones</span>
       </h1>
+
+      <!-- Document Type Toggle -->
+      <div class="flex justify-center mb-6">
+        <div class="bg-gray-200 p-1 rounded-lg">
+          <button
+            type="button"
+            id="toggleCotizacion"
+            class="px-4 py-2 rounded-md font-medium transition-colors bg-indigo-500 text-white"
+          >
+            Cotización
+          </button>
+          <button
+            type="button"
+            id="toggleCuentaCobro"
+            class="px-4 py-2 rounded-md font-medium transition-colors text-gray-700 hover:text-gray-900"
+          >
+            Cuenta de Cobro
+          </button>
+        </div>
+      </div>
 
       <!-- Formulario -->
       <form id="quoteForm" class="space-y-6">
@@ -239,11 +259,12 @@
           <div class="overflow-x-auto">
             <div class="min-w-full inline-block align-middle">
               <div
+                id="productTableHeader"
                 class="grid grid-cols-3 md:grid-cols-6 gap-2 text-sm font-medium text-gray-500 py-2 border-b border-gray-300 product-grid-header"
               >
                 <div class="hidden md:block">#</div>
-                <div>Nombre</div>
-                <div>Descripción</div>
+                <div id="productNameHeader">Nombre</div>
+                <div id="productDescriptionHeader">Descripción</div>
                 <div class="hidden md:block">Cantidad</div>
                 <div class="hidden md:block">Valor Unitario</div>
                 <div class="hidden md:block">Valor Total</div>
@@ -349,12 +370,187 @@
           </div>
         </div>
 
+        <!-- Banking Information Section (for Cuenta de Cobro) -->
+        <div id="bankingSection" class="mt-8 hidden">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">
+            Información Bancaria
+          </h2>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="overflow-x-auto">
+              <table
+                class="w-full border-collapse border border-gray-300 bg-white rounded-lg"
+              >
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th
+                      class="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-700"
+                    >
+                      Campo
+                    </th>
+                    <th
+                      class="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-700"
+                    >
+                      Información
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Titular de la Cuenta
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">
+                      Víctor Manuel Guzmán Berrío
+                    </td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Cédula de Ciudadanía
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">1234092725</td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Banco
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">Davivienda</td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Cuenta de Ahorros
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">
+                      025700145441
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Llave de Bre-b
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">3002017402</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <p class="text-sm text-blue-800">
+                <strong>Nota:</strong> Para transferencias desde otros bancos
+                debe esperar que se acredite el valor transferido.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Information Section (for Cuenta de Cobro) -->
+        <div id="paymentSection" class="mt-8 hidden">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">
+            Información de Pago
+          </h2>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="overflow-x-auto">
+              <table
+                class="w-full border-collapse border border-gray-300 bg-white rounded-lg"
+              >
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th
+                      class="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-700"
+                    >
+                      Concepto
+                    </th>
+                    <th
+                      class="border border-gray-300 px-4 py-2 text-right font-semibold text-gray-700"
+                    >
+                      Valor
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Total de Productos/Servicios
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2 text-right">
+                      <input
+                        type="text"
+                        id="amountToPay"
+                        placeholder="$0"
+                        class="w-full text-right bg-transparent font-bold text-gray-700 border-none outline-none"
+                        readonly
+                      />
+                    </td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Valor Pagado hasta la Fecha
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2 text-right">
+                      <input
+                        type="number"
+                        id="amountPaidToDate"
+                        placeholder="0"
+                        class="w-full text-right border border-gray-300 rounded px-2 py-1"
+                        step="0.01"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-medium text-gray-600"
+                    >
+                      Nuevo Valor a Pagar
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2 text-right">
+                      <input
+                        type="number"
+                        id="newAmountToPay"
+                        placeholder="0"
+                        class="w-full text-right border border-gray-300 rounded px-2 py-1"
+                        step="0.01"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="bg-red-50">
+                    <td
+                      class="border border-gray-300 px-4 py-2 font-bold text-gray-800"
+                    >
+                      Valor Pendiente Total
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2 text-right">
+                      <input
+                        type="text"
+                        id="pendingAmount"
+                        class="w-full text-right bg-transparent font-bold text-red-600 border-none outline-none"
+                        readonly
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <button
           type="submit"
           id="generatePdfBtn"
           class="btn-primary w-full text-center mt-8"
         >
-          Generar PDF
+          <span id="generateBtnText">Generar PDF</span>
         </button>
       </form>
 
@@ -371,7 +567,9 @@
               <div class="text-xs text-gray-500">
                 NIT: <span id="pdf-company-nit"></span>
               </div>
-              <h2 class="text-2xl font-bold mt-2">Cotización</h2>
+              <h2 class="text-2xl font-bold mt-2" id="pdf-document-type">
+                Cotización
+              </h2>
               <div class="text-sm text-gray-500">
                 Fecha de emisión: <span id="pdf-quote-date"></span>
               </div>
@@ -424,6 +622,134 @@
               id="pdf-notes"
               class="text-sm text-gray-700 leading-relaxed"
             ></div>
+          </div>
+
+          <!-- Banking Information Section (for Cuenta de Cobro) -->
+          <div id="pdf-banking-section" class="mt-8 hidden">
+            <h3 class="text-lg font-bold mb-4">Información Bancaria</h3>
+            <div class="overflow-x-auto">
+              <table
+                class="w-full border-collapse border border-gray-300 text-sm mb-4"
+              >
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th
+                      class="border border-gray-300 px-3 py-2 text-left font-semibold"
+                    >
+                      Campo
+                    </th>
+                    <th
+                      class="border border-gray-300 px-3 py-2 text-left font-semibold"
+                    >
+                      Información
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Titular de la Cuenta
+                    </td>
+                    <td class="border border-gray-300 px-3 py-2">
+                      Víctor Manuel Guzmán Berrío
+                    </td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Cédula de Ciudadanía
+                    </td>
+                    <td class="border border-gray-300 px-3 py-2">1234092725</td>
+                  </tr>
+                  <tr>
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Banco
+                    </td>
+                    <td class="border border-gray-300 px-3 py-2">Davivienda</td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Cuenta de Ahorros
+                    </td>
+                    <td class="border border-gray-300 px-3 py-2">
+                      025700145441
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Llave de Bre-b
+                    </td>
+                    <td class="border border-gray-300 px-3 py-2">3002017402</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="bg-blue-50 p-3 rounded border border-blue-200 text-xs">
+              <strong>Nota:</strong> Para transferencias desde otros bancos debe
+              esperar que se acredite el valor transferido.
+            </div>
+          </div>
+
+          <!-- Payment Information Section (for Cuenta de Cobro) -->
+          <div id="pdf-payment-section" class="mt-8 hidden">
+            <h3 class="text-lg font-bold mb-4">Información de Pago</h3>
+            <div class="overflow-x-auto">
+              <table
+                class="w-full border-collapse border border-gray-300 text-sm"
+              >
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th
+                      class="border border-gray-300 px-3 py-2 text-left font-semibold"
+                    >
+                      Concepto
+                    </th>
+                    <th
+                      class="border border-gray-300 px-3 py-2 text-right font-semibold"
+                    >
+                      Valor
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Total de Productos/Servicios
+                    </td>
+                    <td
+                      class="border border-gray-300 px-3 py-2 text-right font-bold"
+                      id="pdf-amount-to-pay"
+                    ></td>
+                  </tr>
+                  <tr class="bg-gray-50">
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Valor Pagado hasta la Fecha
+                    </td>
+                    <td
+                      class="border border-gray-300 px-3 py-2 text-right"
+                      id="pdf-amount-paid"
+                    ></td>
+                  </tr>
+                  <tr>
+                    <td class="border border-gray-300 px-3 py-2 font-medium">
+                      Nuevo Valor a Pagar
+                    </td>
+                    <td
+                      class="border border-gray-300 px-3 py-2 text-right font-bold"
+                      id="pdf-new-amount-to-pay"
+                    ></td>
+                  </tr>
+                  <tr class="bg-red-50">
+                    <td class="border border-gray-300 px-3 py-2 font-bold">
+                      Valor Pendiente Total
+                    </td>
+                    <td
+                      class="border border-gray-300 px-3 py-2 text-right font-bold text-red-600"
+                      id="pdf-pending-amount"
+                    ></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div class="flex justify-between items-end mt-16">
@@ -483,6 +809,18 @@
         generatePdfBtn: document.getElementById("generatePdfBtn"),
         savedProductsSection: document.getElementById("savedProductsSection"),
         productCarousel: document.getElementById("productCarousel"),
+        // Toggle elements
+        documentTitle: document.getElementById("documentTitle"),
+        toggleCotizacion: document.getElementById("toggleCotizacion"),
+        toggleCuentaCobro: document.getElementById("toggleCuentaCobro"),
+        generateBtnText: document.getElementById("generateBtnText"),
+        // Banking and payment elements
+        bankingSection: document.getElementById("bankingSection"),
+        paymentSection: document.getElementById("paymentSection"),
+        amountToPay: document.getElementById("amountToPay"),
+        amountPaidToDate: document.getElementById("amountPaidToDate"),
+        newAmountToPay: document.getElementById("newAmountToPay"),
+        pendingAmount: document.getElementById("pendingAmount"),
       };
 
       const pdfElements = {
@@ -504,11 +842,20 @@
         ),
         pdfSignatureName: document.getElementById("pdf-signature-name"),
         pdfSignatureId: document.getElementById("pdf-signature-id"),
+        // New PDF elements
+        pdfDocumentType: document.getElementById("pdf-document-type"),
+        pdfBankingSection: document.getElementById("pdf-banking-section"),
+        pdfPaymentSection: document.getElementById("pdf-payment-section"),
+        pdfAmountToPay: document.getElementById("pdf-amount-to-pay"),
+        pdfAmountPaid: document.getElementById("pdf-amount-paid"),
+        pdfNewAmountToPay: document.getElementById("pdf-new-amount-to-pay"),
+        pdfPendingAmount: document.getElementById("pdf-pending-amount"),
       };
 
       let products = [];
       let savedProducts = [];
       let quill;
+      let currentDocumentType = "cotizacion"; // 'cotizacion' or 'cuenta_cobro'
 
       // --- Funciones del DOM y la Lógica ---
 
@@ -610,48 +957,88 @@
 
       function createProductElement(product, index) {
         const productDiv = document.createElement("div");
-        productDiv.className =
-          "product-item grid grid-cols-1 md:grid-cols-6 gap-2 items-center";
-        productDiv.dataset.id = product.id;
-
         const totalValue = product.quantity * product.unitPrice;
 
-        productDiv.innerHTML = `
-                <div class="hidden md:block text-gray-500">${index + 1}</div>
-                <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
-                    <label class="block md:hidden text-gray-500 text-sm">Nombre</label>
-                    <input type="text" value="${
-                      product.name
-                    }" placeholder="Nombre" data-field="name" class="w-full">
-                </div>
-                <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
-                    <label class="block md:hidden text-gray-500 text-sm">Descripción</label>
-                    <textarea data-field="description" rows="1" placeholder="Descripción" class="w-full">${
-                      product.description
-                    }</textarea>
-                </div>
-                <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
-                    <label class="block md:hidden text-gray-500 text-sm">Cantidad</label>
-                    <input type="number" value="${
-                      product.quantity
-                    }" placeholder="Cantidad" data-field="quantity" class="w-full text-right">
-                </div>
-                <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
-                    <label class="block md:hidden text-gray-500 text-sm">Valor Unitario</label>
-                    <input type="number" value="${
-                      product.unitPrice
-                    }" placeholder="Valor Unitario" data-field="unitPrice" class="w-full text-right">
-                </div>
-                <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
-                    <label class="block md:hidden text-gray-500 text-sm">Valor Total</label>
-                    <input type="text" value="${formatCurrency(
-                      totalValue
-                    )}" class="w-full text-right bg-gray-100" readonly>
-                </div>
-                <div class="flex items-center justify-center">
-                    <button type="button" class="text-red-500 text-2xl hover:text-red-700 font-bold leading-none delete-product-btn">&times;</button>
-                </div>
-            `;
+        if (currentDocumentType === "cuenta_cobro") {
+          // Simplified layout for cuenta de cobro (no description)
+          productDiv.className =
+            "product-item grid grid-cols-1 md:grid-cols-5 gap-2 items-center";
+          productDiv.dataset.id = product.id;
+
+          productDiv.innerHTML = `
+                  <div class="hidden md:block text-gray-500">${index + 1}</div>
+                  <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Concepto</label>
+                      <input type="text" value="${
+                        product.name
+                      }" placeholder="Concepto" data-field="name" class="w-full">
+                  </div>
+                  <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Cantidad</label>
+                      <input type="number" value="${
+                        product.quantity
+                      }" placeholder="Cantidad" data-field="quantity" class="w-full text-right">
+                  </div>
+                  <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Valor Unitario</label>
+                      <input type="number" value="${
+                        product.unitPrice
+                      }" placeholder="Valor Unitario" data-field="unitPrice" class="w-full text-right">
+                  </div>
+                  <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Valor Total</label>
+                      <input type="text" value="${formatCurrency(
+                        totalValue
+                      )}" class="w-full text-right bg-gray-100" readonly>
+                  </div>
+                  <div class="flex items-center justify-center">
+                      <button type="button" class="text-red-500 text-2xl hover:text-red-700 font-bold leading-none delete-product-btn">&times;</button>
+                  </div>
+              `;
+        } else {
+          // Full layout for cotizacion (with description)
+          productDiv.className =
+            "product-item grid grid-cols-1 md:grid-cols-6 gap-2 items-center";
+          productDiv.dataset.id = product.id;
+
+          productDiv.innerHTML = `
+                  <div class="hidden md:block text-gray-500">${index + 1}</div>
+                  <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Nombre</label>
+                      <input type="text" value="${
+                        product.name
+                      }" placeholder="Nombre" data-field="name" class="w-full">
+                  </div>
+                  <div class="col-span-3 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Descripción</label>
+                      <textarea data-field="description" rows="1" placeholder="Descripción" class="w-full">${
+                        product.description
+                      }</textarea>
+                  </div>
+                  <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Cantidad</label>
+                      <input type="number" value="${
+                        product.quantity
+                      }" placeholder="Cantidad" data-field="quantity" class="w-full text-right">
+                  </div>
+                  <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Valor Unitario</label>
+                      <input type="number" value="${
+                        product.unitPrice
+                      }" placeholder="Valor Unitario" data-field="unitPrice" class="w-full text-right">
+                  </div>
+                  <div class="col-span-2 md:col-span-1 flex flex-col space-y-1 md:space-y-0">
+                      <label class="block md:hidden text-gray-500 text-sm">Valor Total</label>
+                      <input type="text" value="${formatCurrency(
+                        totalValue
+                      )}" class="w-full text-right bg-gray-100" readonly>
+                  </div>
+                  <div class="flex items-center justify-center">
+                      <button type="button" class="text-red-500 text-2xl hover:text-red-700 font-bold leading-none delete-product-btn">&times;</button>
+                  </div>
+              `;
+        }
+
         return productDiv;
       }
 
@@ -719,6 +1106,131 @@
         });
         formElements.subtotal.value = formatCurrency(subtotal);
         formElements.total.value = formatCurrency(subtotal);
+
+        // Calculate pending amount for cuenta de cobro
+        if (currentDocumentType === "cuenta_cobro") {
+          calculatePendingAmount();
+        }
+      }
+
+      function calculatePendingAmount() {
+        // Calculate total from products
+        let totalFromProducts = 0;
+        products.forEach((p) => {
+          totalFromProducts += p.quantity * p.unitPrice;
+        });
+
+        const amountPaid = parseFloat(formElements.amountPaidToDate.value) || 0;
+        const newAmountToPay =
+          parseFloat(formElements.newAmountToPay.value) || 0;
+
+        // Calculate pending: total - paid to date - new payment
+        const pending = totalFromProducts - amountPaid - newAmountToPay;
+
+        // Update the fields
+        formElements.amountToPay.value = formatCurrency(totalFromProducts);
+        formElements.pendingAmount.value = formatCurrency(Math.max(0, pending)); // Don't show negative pending
+      }
+
+      function toggleDocumentType(type) {
+        currentDocumentType = type;
+
+        // Update toggle buttons
+        if (type === "cotizacion") {
+          formElements.toggleCotizacion.className =
+            "px-4 py-2 rounded-md font-medium transition-colors bg-indigo-500 text-white";
+          formElements.toggleCuentaCobro.className =
+            "px-4 py-2 rounded-md font-medium transition-colors text-gray-700 hover:text-gray-900";
+          formElements.documentTitle.textContent = "Generador de Cotizaciones";
+          formElements.generateBtnText.textContent = "Generar PDF";
+
+          // Hide banking and payment sections
+          formElements.bankingSection.classList.add("hidden");
+          formElements.paymentSection.classList.add("hidden");
+
+          // Show notes section for cotizacion
+          document
+            .querySelector(".form-group:has(#notesEditor)")
+            .parentElement.classList.remove("hidden");
+
+          // Update table headers for cotizacion
+          document.querySelector(".text-xl.font-semibold").textContent =
+            "Productos/Servicios";
+          document.getElementById("productNameHeader").textContent = "Nombre";
+          document.getElementById("productDescriptionHeader").style.display =
+            "block";
+          document.getElementById("productTableHeader").className =
+            "grid grid-cols-3 md:grid-cols-6 gap-2 text-sm font-medium text-gray-500 py-2 border-b border-gray-300 product-grid-header";
+        } else {
+          formElements.toggleCuentaCobro.className =
+            "px-4 py-2 rounded-md font-medium transition-colors bg-indigo-500 text-white";
+          formElements.toggleCotizacion.className =
+            "px-4 py-2 rounded-md font-medium transition-colors text-gray-700 hover:text-gray-900";
+          formElements.documentTitle.textContent =
+            "Generador de Cuentas de Cobro";
+          formElements.generateBtnText.textContent = "Generar Cuenta de Cobro";
+
+          // Show banking and payment sections
+          formElements.bankingSection.classList.remove("hidden");
+          formElements.paymentSection.classList.remove("hidden");
+
+          // Hide notes section for cuenta de cobro
+          document
+            .querySelector(".form-group:has(#notesEditor)")
+            .parentElement.classList.add("hidden");
+
+          // Update table headers for cuenta de cobro
+          document.querySelector(".text-xl.font-semibold").textContent =
+            "Conceptos";
+          document.getElementById("productNameHeader").textContent = "Concepto";
+          document.getElementById("productDescriptionHeader").style.display =
+            "none";
+          document.getElementById("productTableHeader").className =
+            "grid grid-cols-3 md:grid-cols-5 gap-2 text-sm font-medium text-gray-500 py-2 border-b border-gray-300 product-grid-header";
+        }
+
+        // Re-render products to show/hide descriptions
+        renderProducts();
+
+        // Update PDF preview sections
+        updatePdfPreview();
+      }
+
+      function updatePdfPreview() {
+        if (currentDocumentType === "cotizacion") {
+          pdfElements.pdfDocumentType.textContent = "Cotización";
+          pdfElements.pdfBankingSection.classList.add("hidden");
+          pdfElements.pdfPaymentSection.classList.add("hidden");
+        } else {
+          pdfElements.pdfDocumentType.textContent = "Cuenta de Cobro";
+          pdfElements.pdfBankingSection.classList.remove("hidden");
+          pdfElements.pdfPaymentSection.classList.remove("hidden");
+
+          // Update payment information in PDF preview
+          // Calculate total from products
+          let totalFromProducts = 0;
+          products.forEach((p) => {
+            totalFromProducts += p.quantity * p.unitPrice;
+          });
+
+          const amountPaid =
+            parseFloat(formElements.amountPaidToDate.value) || 0;
+          const newAmountToPay =
+            parseFloat(formElements.newAmountToPay.value) || 0;
+
+          // Calculate pending: total - paid to date - new payment
+          const pending = Math.max(
+            0,
+            totalFromProducts - amountPaid - newAmountToPay
+          );
+
+          pdfElements.pdfAmountToPay.textContent =
+            formatCurrency(totalFromProducts);
+          pdfElements.pdfAmountPaid.textContent = formatCurrency(amountPaid);
+          pdfElements.pdfNewAmountToPay.textContent =
+            formatCurrency(newAmountToPay);
+          pdfElements.pdfPendingAmount.textContent = formatCurrency(pending);
+        }
       }
 
       function formatCurrency(value) {
@@ -879,6 +1391,26 @@
         await generatePDFWithAutoTable();
       });
 
+      // Toggle event listeners
+      formElements.toggleCotizacion.addEventListener("click", () => {
+        toggleDocumentType("cotizacion");
+      });
+
+      formElements.toggleCuentaCobro.addEventListener("click", () => {
+        toggleDocumentType("cuenta_cobro");
+      });
+
+      // Payment field event listeners
+      formElements.amountPaidToDate.addEventListener("input", () => {
+        calculatePendingAmount();
+        updatePdfPreview();
+      });
+
+      formElements.newAmountToPay.addEventListener("input", () => {
+        calculatePendingAmount();
+        updatePdfPreview();
+      });
+
       function addHeader(
         doc,
         pageWidth,
@@ -923,7 +1455,11 @@
         // Title - black text
         doc.setFontSize(24);
         doc.setTextColor(0, 0, 0);
-        doc.text("Cotización", pageWidth - rightMargin, headerY + 60, {
+        const documentTitle =
+          currentDocumentType === "cotizacion"
+            ? "Cotización"
+            : "Cuenta de Cobro";
+        doc.text(documentTitle, pageWidth - rightMargin, headerY + 60, {
           align: "right",
         });
 
@@ -1043,6 +1579,20 @@
           const logoBase64 = localStorage.getItem("logoImage");
           const signatureBase64 = localStorage.getItem("signatureImage");
 
+          // Add initial header
+          addHeader(
+            doc,
+            pageWidth,
+            leftMargin,
+            rightMargin,
+            companyName,
+            companyReg,
+            companyNit,
+            quoteDate,
+            logoBase64,
+            contentWidth
+          );
+
           // Start content after header space
           let currentY = 160;
 
@@ -1060,43 +1610,76 @@
           );
           currentY += 60;
 
-          // Prepare table data with phrase case formatting
-          const tableData = products.map((product, index) => [
-            (index + 1).toString(),
-            `${toPhraseCase(product.name)}\n${toPhraseCase(
-              product.description
-            )}`,
-            product.quantity.toString(),
-            formatCurrencyForPDF(product.unitPrice),
-            formatCurrencyForPDF(product.quantity * product.unitPrice),
-          ]);
+          // Prepare table data based on document type
+          let tableData, tableHeaders, columnWidths;
+
+          if (currentDocumentType === "cuenta_cobro") {
+            // Simplified table for cuenta de cobro (no description)
+            tableHeaders = [
+              "#",
+              "Concepto",
+              "Cantidad",
+              "Valor Unitario",
+              "Valor Total",
+            ];
+            tableData = products.map((product, index) => [
+              (index + 1).toString(),
+              toPhraseCase(product.name),
+              product.quantity.toString(),
+              formatCurrencyForPDF(product.unitPrice),
+              formatCurrencyForPDF(product.quantity * product.unitPrice),
+            ]);
+
+            // Calculate table column widths for cuenta de cobro
+            columnWidths = {
+              0: contentWidth * 0.08, // # column - 8%
+              1: contentWidth * 0.52, // Concepto - 52%
+              2: contentWidth * 0.12, // Quantity - 12%
+              3: contentWidth * 0.14, // Unit Price - 14%
+              4: contentWidth * 0.14, // Total - 14%
+            };
+          } else {
+            // Full table for cotizacion (with description)
+            tableHeaders = [
+              "#",
+              "Descripción",
+              "Cantidad",
+              "Valor Unitario",
+              "Valor Total",
+            ];
+            tableData = products.map((product, index) => [
+              (index + 1).toString(),
+              `${toPhraseCase(product.name)}\n${product.description}`, // Keep original description formatting
+              product.quantity.toString(),
+              formatCurrencyForPDF(product.unitPrice),
+              formatCurrencyForPDF(product.quantity * product.unitPrice),
+            ]);
+
+            // Calculate table column widths for cotizacion
+            columnWidths = {
+              0: contentWidth * 0.08, // # column - 8%
+              1: contentWidth * 0.4, // Description - 40%
+              2: contentWidth * 0.12, // Quantity - 12%
+              3: contentWidth * 0.2, // Unit Price - 20%
+              4: contentWidth * 0.2, // Total - 20%
+            };
+          }
 
           // Add total row with colspan
+          const totalColspan = currentDocumentType === "cuenta_cobro" ? 4 : 4;
           tableData.push([
             {
               content: "TOTAL",
-              colSpan: 4,
+              colSpan: totalColspan,
               styles: { fontStyle: "bold", halign: "right" },
             },
             { content: total, styles: { fontStyle: "bold", halign: "right" } },
           ]);
 
-          // Calculate table column widths proportionally to content width
-          const tableWidth = contentWidth;
-          const columnWidths = {
-            0: tableWidth * 0.08, // # column - 8%
-            1: tableWidth * 0.4, // Description - 40%
-            2: tableWidth * 0.12, // Quantity - 12%
-            3: tableWidth * 0.2, // Unit Price - 20%
-            4: tableWidth * 0.2, // Total - 20%
-          };
-
           // Generate table using AutoTable with black borders and transparent background
           doc.autoTable({
             startY: currentY,
-            head: [
-              ["#", "Descripción", "Cantidad", "Valor Unitario", "Valor Total"],
-            ],
+            head: [tableHeaders],
             body: tableData,
             theme: "plain",
             headStyles: {
@@ -1164,17 +1747,91 @@
                 const cell = data.cell;
                 const x = cell.x + cell.padding("left");
                 const y = cell.y + cell.padding("top");
+                const cellWidth =
+                  cell.width - cell.padding("left") - cell.padding("right");
 
                 // Draw product name in bold
                 doc.setFont(undefined, "bold");
                 doc.setFontSize(10);
                 doc.text(cell.productName, x, y + 10);
 
-                // Draw description in normal font
-                doc.setFont(undefined, "normal");
-                doc.setFontSize(10);
+                // Draw description preserving formatting
                 if (cell.productDescription) {
-                  doc.text(cell.productDescription, x, y + 25);
+                  let currentY = y + 25;
+
+                  // Parse and render text with basic formatting
+                  const renderFormattedText = (text, startX, startY) => {
+                    // Split by line breaks first
+                    const lines = text.split("\n");
+                    let lineY = startY;
+
+                    lines.forEach((line) => {
+                      if (lineY < cell.y + cell.height - 5) {
+                        // Check for basic formatting markers
+                        if (line.includes("**") || line.includes("*")) {
+                          // Handle bold and italic (basic implementation)
+                          renderLineWithFormatting(
+                            line,
+                            startX,
+                            lineY,
+                            cellWidth
+                          );
+                        } else {
+                          // Regular text
+                          doc.setFont(undefined, "normal");
+                          doc.setFontSize(10);
+                          const wrappedLines = doc.splitTextToSize(
+                            line,
+                            cellWidth
+                          );
+                          wrappedLines.forEach((wrappedLine) => {
+                            if (lineY < cell.y + cell.height - 5) {
+                              doc.text(wrappedLine, startX, lineY);
+                              lineY += 12;
+                            }
+                          });
+                        }
+                      }
+                    });
+                    return lineY;
+                  };
+
+                  const renderLineWithFormatting = (
+                    line,
+                    startX,
+                    startY,
+                    maxWidth
+                  ) => {
+                    // Simple implementation for **bold** and *italic*
+                    const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/);
+                    let currentX = startX;
+
+                    parts.forEach((part) => {
+                      if (part.startsWith("**") && part.endsWith("**")) {
+                        // Bold text
+                        doc.setFont(undefined, "bold");
+                        doc.setFontSize(10);
+                        const boldText = part.slice(2, -2);
+                        doc.text(boldText, currentX, startY);
+                        currentX += doc.getTextWidth(boldText);
+                      } else if (part.startsWith("*") && part.endsWith("*")) {
+                        // Italic text
+                        doc.setFont(undefined, "italic");
+                        doc.setFontSize(10);
+                        const italicText = part.slice(1, -1);
+                        doc.text(italicText, currentX, startY);
+                        currentX += doc.getTextWidth(italicText);
+                      } else if (part) {
+                        // Regular text
+                        doc.setFont(undefined, "normal");
+                        doc.setFontSize(10);
+                        doc.text(part, currentX, startY);
+                        currentX += doc.getTextWidth(part);
+                      }
+                    });
+                  };
+
+                  renderFormattedText(cell.productDescription, x, currentY);
                 }
 
                 // Prevent default text rendering
@@ -1183,21 +1840,21 @@
             },
             didDrawPage: function (data) {
               try {
-                // Header on every page
-                addHeader(
-                  doc,
-                  pageWidth,
-                  leftMargin,
-                  rightMargin,
-                  companyName,
-                  companyReg,
-                  companyNit,
-                  quoteDate,
-                  logoBase64,
-                  contentWidth
-                );
-
-                // Footer removed from here - will be added as separate AutoTable
+                // Header only on new pages (not the first page)
+                if (data.pageNumber > 1) {
+                  addHeader(
+                    doc,
+                    pageWidth,
+                    leftMargin,
+                    rightMargin,
+                    companyName,
+                    companyReg,
+                    companyNit,
+                    quoteDate,
+                    logoBase64,
+                    contentWidth
+                  );
+                }
               } catch (error) {
                 console.error("Error in didDrawPage:", error);
               }
@@ -1226,21 +1883,23 @@
             notesTableData.push([{ content: "" }]); // Empty row for spacing
           }
 
-          // Add notes if available
-          const notesText = quill.getText().trim();
-          if (notesText) {
-            notesTableData.push([
-              {
-                content: "Notas:",
-                styles: { fontStyle: "bold", fontSize: 12 },
-              },
-            ]);
-            notesTableData.push([
-              {
-                content: notesText,
-                styles: { fontSize: 10, textColor: [60, 60, 60] },
-              },
-            ]);
+          // Add notes if available (only for cotizacion)
+          if (currentDocumentType === "cotizacion") {
+            const notesText = quill.getText().trim();
+            if (notesText) {
+              notesTableData.push([
+                {
+                  content: "Notas:",
+                  styles: { fontStyle: "bold", fontSize: 12 },
+                },
+              ]);
+              notesTableData.push([
+                {
+                  content: notesText,
+                  styles: { fontSize: 10, textColor: [60, 60, 60] },
+                },
+              ]);
+            }
           }
 
           // Generate notes table with invisible borders
@@ -1266,24 +1925,234 @@
               },
               didDrawPage: function (data) {
                 try {
-                  // Only header on every page
-                  addHeader(
-                    doc,
-                    pageWidth,
-                    leftMargin,
-                    rightMargin,
-                    companyName,
-                    companyReg,
-                    companyNit,
-                    quoteDate,
-                    logoBase64,
-                    contentWidth
-                  );
+                  // Header only on new pages (not the first page)
+                  if (data.pageNumber > 1) {
+                    addHeader(
+                      doc,
+                      pageWidth,
+                      leftMargin,
+                      rightMargin,
+                      companyName,
+                      companyReg,
+                      companyNit,
+                      quoteDate,
+                      logoBase64,
+                      contentWidth
+                    );
+                  }
                 } catch (error) {
                   console.error("Error in notes table didDrawPage:", error);
                 }
               },
             });
+
+            currentY = doc.lastAutoTable.finalY + 30;
+          }
+
+          // Add banking and payment information for cuenta de cobro
+          if (currentDocumentType === "cuenta_cobro") {
+            // Banking information table
+            const bankingTableData = [
+              ["Campo", "Información"],
+              ["Titular de la Cuenta", "Víctor Manuel Guzmán Berrío"],
+              ["Cédula de Ciudadanía", "1234092725"],
+              ["Banco", "Davivienda"],
+              ["Cuenta de Ahorros", "025700145441"],
+              ["Llave de Bre-b", "3002017402"],
+            ];
+
+            // Payment information
+            // Calculate total from products
+            let totalFromProducts = 0;
+            products.forEach((p) => {
+              totalFromProducts += p.quantity * p.unitPrice;
+            });
+
+            const amountPaid =
+              parseFloat(formElements.amountPaidToDate.value) || 0;
+            const newAmountToPay =
+              parseFloat(formElements.newAmountToPay.value) || 0;
+
+            // Calculate pending: total - paid to date - new payment
+            const pending = Math.max(
+              0,
+              totalFromProducts - amountPaid - newAmountToPay
+            );
+
+            // Add banking information title
+            doc.setFont(undefined, "bold");
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text("Información Bancaria", leftMargin, currentY + 15);
+            currentY += 35;
+
+            // Generate banking information table with same style as products table
+            doc.autoTable({
+              startY: currentY,
+              head: [["Campo", "Información"]],
+              body: bankingTableData.slice(1), // Remove header row since it's in head
+              theme: "plain",
+              headStyles: {
+                fillColor: false, // Transparent background like products table
+                textColor: [0, 0, 0], // Black text
+                fontSize: 12,
+                fontStyle: "bold",
+                halign: "left",
+                valign: "middle",
+                lineColor: [0, 0, 0], // Black borders
+                lineWidth: 0.5,
+              },
+              bodyStyles: {
+                fillColor: false, // Transparent background
+                textColor: [0, 0, 0], // Black text
+                fontSize: 10,
+                cellPadding: 8,
+                halign: "left",
+                valign: "middle",
+                lineColor: [0, 0, 0], // Black borders
+                lineWidth: 0.5,
+              },
+              columnStyles: {
+                0: { cellWidth: contentWidth * 0.4, fontStyle: "bold" },
+                1: { cellWidth: contentWidth * 0.6 },
+              },
+              tableLineColor: [0, 0, 0], // Black table borders
+              tableLineWidth: 0.5,
+              margin: {
+                left: leftMargin,
+                right: rightMargin,
+                top: 160, // Start after header band on continuation pages
+              },
+              didDrawPage: function (data) {
+                try {
+                  // Header only on new pages (not the first page)
+                  if (data.pageNumber > 1) {
+                    addHeader(
+                      doc,
+                      pageWidth,
+                      leftMargin,
+                      rightMargin,
+                      companyName,
+                      companyReg,
+                      companyNit,
+                      quoteDate,
+                      logoBase64,
+                      contentWidth
+                    );
+                  }
+                } catch (error) {
+                  console.error("Error in banking table didDrawPage:", error);
+                }
+              },
+            });
+
+            currentY = doc.lastAutoTable.finalY + 10;
+
+            // Add note about bank transfers
+            doc.setFontSize(9);
+            doc.setTextColor(60, 60, 60);
+            doc.setFont(undefined, "italic");
+            const noteText =
+              "Nota: Para transferencias desde otros bancos debe esperar que se acredite el valor transferido.";
+            const wrappedNote = doc.splitTextToSize(noteText, contentWidth);
+            doc.text(wrappedNote, leftMargin, currentY + 10);
+            currentY += 25;
+
+            // Payment information table (if there's payment data)
+            if (totalFromProducts > 0) {
+              // Add payment information title
+              doc.setFont(undefined, "bold");
+              doc.setFontSize(12);
+              doc.setTextColor(0, 0, 0);
+              doc.text("Información de Pago", leftMargin, currentY + 15);
+              currentY += 35;
+
+              const paymentTableData = [
+                [
+                  "Total de Productos/Servicios",
+                  formatCurrencyForPDF(totalFromProducts),
+                ],
+                [
+                  "Valor Pagado hasta la Fecha",
+                  formatCurrencyForPDF(amountPaid),
+                ],
+                ["Nuevo Valor a Pagar", formatCurrencyForPDF(newAmountToPay)],
+                ["Valor Pendiente Total", formatCurrencyForPDF(pending)],
+              ];
+
+              doc.autoTable({
+                startY: currentY,
+                head: [["Concepto", "Valor"]],
+                body: paymentTableData,
+                theme: "plain",
+                headStyles: {
+                  fillColor: false, // Transparent background like products table
+                  textColor: [0, 0, 0], // Black text
+                  fontSize: 12,
+                  fontStyle: "bold",
+                  halign: "left",
+                  valign: "middle",
+                  lineColor: [0, 0, 0], // Black borders
+                  lineWidth: 0.5,
+                },
+                bodyStyles: {
+                  fillColor: false, // Transparent background
+                  textColor: [0, 0, 0], // Black text
+                  fontSize: 10,
+                  cellPadding: 8,
+                  halign: "left",
+                  valign: "middle",
+                  lineColor: [0, 0, 0], // Black borders
+                  lineWidth: 0.5,
+                },
+                columnStyles: {
+                  0: { cellWidth: contentWidth * 0.6, fontStyle: "bold" },
+                  1: {
+                    cellWidth: contentWidth * 0.4,
+                    halign: "right",
+                    fontStyle: "bold",
+                  },
+                },
+                tableLineColor: [0, 0, 0], // Black table borders
+                tableLineWidth: 0.5,
+                didParseCell: function (data) {
+                  // Make pending amount red if positive
+                  if (
+                    data.row.index === 3 &&
+                    data.column.index === 1 &&
+                    pending > 0
+                  ) {
+                    data.cell.styles.textColor = [220, 38, 38]; // Red color
+                  }
+                },
+                margin: {
+                  left: leftMargin,
+                  right: rightMargin,
+                  top: 160, // Start after header band on continuation pages
+                },
+                didDrawPage: function (data) {
+                  try {
+                    // Header only on new pages (not the first page)
+                    if (data.pageNumber > 1) {
+                      addHeader(
+                        doc,
+                        pageWidth,
+                        leftMargin,
+                        rightMargin,
+                        companyName,
+                        companyReg,
+                        companyNit,
+                        quoteDate,
+                        logoBase64,
+                        contentWidth
+                      );
+                    }
+                  } catch (error) {
+                    console.error("Error in payment table didDrawPage:", error);
+                  }
+                },
+              });
+            }
 
             currentY = doc.lastAutoTable.finalY + 30;
           }
@@ -1347,7 +2216,11 @@
 
           // Save the PDF
           console.log("Saving PDF...");
-          doc.save("Cotizacion.pdf");
+          const fileName =
+            currentDocumentType === "cotizacion"
+              ? "Cotizacion.pdf"
+              : "Cuenta_de_Cobro.pdf";
+          doc.save(fileName);
           console.log("PDF generation completed successfully!");
         } catch (error) {
           console.error("Error generating PDF:", error);
